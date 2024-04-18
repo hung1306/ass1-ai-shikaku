@@ -1,6 +1,7 @@
 from block import Block
 from collections import deque
-
+import time
+from memory_profiler import memory_usage
 
 class PuzzleState:
     def __init__(self, state, index, is_filled):
@@ -38,6 +39,8 @@ class Solver:
         self.step = 0
 
     def bfs(self):
+        start_time = time.time()
+        mem_usage_before = memory_usage()[0]
         self.step = 0
         is_filled = [[False for _ in range(5)] for _ in range(5)]
         for block in self.init_state:
@@ -52,8 +55,16 @@ class Solver:
             self.walker.update_is_filled()
             if self.walker.is_goal_state():
                 # print("Found goal state")
-                print(f"BFS walkthrough {self.step} states.")
+                # print(f"BFS walkthrough {self.step} states.")
                 self.goal_state = self.walker
+                end_time = time.time()
+                mem_usage_after = memory_usage()[0]
+
+                execution_time = end_time - start_time
+                mem_usage = mem_usage_after - mem_usage_before
+                print(f"Execution time: {execution_time} seconds")
+                print(f"Number of steps: {self.step}")
+                print(f"Memory usage: {mem_usage} MiB")
                 return self.walker
 
             posible_node = self.generate_state()
@@ -63,10 +74,17 @@ class Solver:
             
             self.step += 1
 
-        # if not fount goal state
-        print("Not Found Goal State")
-
+        # if not found goal state
+        # print("Not Found Goal State")
+        if not self.goal_state:
+            print("Not Found Goal State")
+            return None
+        return self.goal_state
+        
     def backtracking(self):
+        start_time = time.time()
+        mem_usage_before = memory_usage()[0]
+
         self.step = 0
         is_filled = [[False for _ in range(5)] for _ in range(5)]
         for block in self.init_state:
@@ -88,7 +106,14 @@ class Solver:
 
                 if self.walker.is_goal_state():
                     # print("Found goal state")
-                    print(f"Backtracking walkthrough {self.step} states.")
+                    end_time = time.time()
+                    mem_usage_after = memory_usage()[0]
+
+                    execution_time = end_time - start_time
+                    mem_usage = mem_usage_after - mem_usage_before
+                    print(f"Execution time: {execution_time} seconds")
+                    print(f"Number of steps: {self.step}")
+                    print(f"Memory usage: {mem_usage} MiB")
                     self.goal_state = self.walker
                     return self.walker
 
@@ -102,6 +127,7 @@ class Solver:
 
         # if not fount goal state
         print("Not Found Goal State")
+
 
     def generate_state(self):
         index = self.walker.index
